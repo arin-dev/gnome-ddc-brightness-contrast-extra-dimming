@@ -134,19 +134,18 @@ const Indicator = GObject.registerClass(
           display.overlay = false;
         }
 
-        Main.uiGroup.add_child(display.overlay);
         const sliderChange = () => {
           const value = slider.value * 100;
           sliderT.text = value.toFixed(0) + '%';
           display.overlay.set_opacity(value * 2.3);
           if (value) {
-            if (!display.isOverlayActive && !display.isOverlayBlocked) {
-              display.overlay && Main.uiGroup.add_actor(display.overlay);
+            if (!display.isOverlayBlocked && display.overlay && !display.overlay.get_parent()) {
+              Main.uiGroup.add_child(display.overlay);
             }
             display.isOverlayActive = true;
           } else {
-            if (display.isOverlayActive && !display.isOverlayBlocked) {
-              display.overlay && Main.uiGroup.remove_actor(display.overlay);
+            if (!display.isOverlayBlocked && display.overlay && display.overlay.get_parent()) {
+              Main.uiGroup.remove_child(display.overlay);
             }
             display.isOverlayActive = false;
           }
@@ -219,14 +218,14 @@ const Indicator = GObject.registerClass(
 
     _onOverviewShowing() {
       displays.forEach((d) => {
-        d.isOverlayActive && d.overlay && Main.uiGroup.remove_actor(d.overlay);
+        d.overlay && d.overlay.get_parent() && Main.uiGroup.remove_child(d.overlay);
         d.isOverlayBlocked = true;
       });
     }
 
     _onOverviewHiding() {
       displays.forEach((d) => {
-        d.isOverlayActive && d.overlay && Main.uiGroup.add_actor(d.overlay);
+        d.isOverlayActive && d.overlay && !d.overlay.get_parent() && Main.uiGroup.add_child(d.overlay);
         d.isOverlayBlocked = false;
       });
     }
@@ -238,7 +237,7 @@ const Indicator = GObject.registerClass(
           return;
         }
         d.overlay.set_opacity(0);
-        d.isOverlayActive && !d.isOverlayBlocked && Main.uiGroup.remove_child(d.overlay);
+        d.overlay.get_parent() && Main.uiGroup.remove_child(d.overlay);
         d.overlay.destroy();
       });
       overviewHandlers.forEach((h) => Main.overview.disconnect(h));
