@@ -1,5 +1,10 @@
 ## Set Monitor DDC Brightness/Contrast + Extra Dimming
 
+> [!IMPORTANT]
+> **This is a fork with a GNOME 46+ fix.** On GNOME 46 and newer, the original extension breaks dragging windows between workspaces in the Activities overview (`TypeError: Main.uiGroup.remove_actor is not a function` — see [upstream issue #9](https://github.com/tzawezin/gnome-ddc-brightness-contrast-extra-dimming/issues/9) and [fix PR #8](https://github.com/tzawezin/gnome-ddc-brightness-contrast-extra-dimming/pull/8)).
+> Until the fix is merged upstream, install from **this repository** (see [installation steps](#install-this-gnome-extension-fixed-version) below) instead of extensions.gnome.org.
+> All credit for the extension itself goes to [@tzawezin](https://github.com/tzawezin).
+
 ![screenshot](screenshot.png)
 
 ### Installation and Configuration
@@ -31,9 +36,18 @@ ddcutil detect
 #### More info:
 https://www.ddcutil.com/install_config_main/
 
-#### Install this GNOME extension
-Last but not least, get this extension here: [Monitor DDC Brightness/Contrast + Extra Dimming](https://extensions.gnome.org/extension/6985/set-monitor-ddc-brightnesscontrast-extra-dimming/)  
-(Also available from your Extension Manager.)
+#### Install this GNOME extension (fixed version)
+```
+git clone https://github.com/arin-dev/gnome-ddc-brightness-contrast-extra-dimming.git
+cd gnome-ddc-brightness-contrast-extra-dimming
+rm -rf ~/.local/share/gnome-shell/extensions/ddc-brightness-contrast-extra-dimming@tzawezin.github.io
+cp -r "ddc-brightness-contrast-extra-dimming@tzawezin.github.io" ~/.local/share/gnome-shell/extensions/
+```
+The `rm` line removes any copy previously installed from [extensions.gnome.org](https://extensions.gnome.org/extension/6985/set-monitor-ddc-brightnesscontrast-extra-dimming/) — it uses the same UUID. If the Extensions app later offers you an update for this extension, it will overwrite this patched copy with the (still broken) upstream version, so only accept it once the fix has been merged.
 
 #### Log out / Log in
-You need to log out/log in after doing all the installation and configuration procedure for this extension to work.
+Log out and back in so GNOME Shell picks up the extension (on X11 you can instead press Alt+F2, type `r`, Enter). Then enable it:
+```
+gnome-extensions enable ddc-brightness-contrast-extra-dimming@tzawezin.github.io
+```
+(Also possible from your Extension Manager.)
