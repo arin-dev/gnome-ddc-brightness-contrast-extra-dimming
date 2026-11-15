@@ -22,6 +22,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import Cogl from 'gi://Cogl';
 import GLib from 'gi://GLib';
 import { Slider } from 'resource:///org/gnome/shell/ui/slider.js';
 import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -120,7 +121,7 @@ const Indicator = GObject.registerClass(
             y: monitor.y,
             width: monitor.width,
             height: monitor.height,
-            background_color: new Clutter.Color({
+            background_color: new Cogl.Color({
               red: 0,
               green: 0,
               blue: 0,
@@ -249,7 +250,7 @@ const Indicator = GObject.registerClass(
 export default class MonitorDDCBrightnessContrastExtraDimmingExtension extends Extension {
   enable() {
     this._indicator = new Indicator();
-    Main.panel.addToStatusArea(this._uuid, this._indicator);
+    Main.panel.addToStatusArea(this.uuid, this._indicator);
   }
   disable() {
     this._indicator.destroy();
