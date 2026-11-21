@@ -37,6 +37,22 @@ const ddcutil_path = '/usr/bin/ddcutil';
 let displays = [];
 let overviewHandlers = [];
 
+// While a display is dimmed, keep the compositor from handing fullscreen
+// windows straight to the display (direct scanout / unredirect): in that
+// mode nothing the shell draws on top, including the overlay, is shown.
+// One inhibit per dimmed display, so the compositor's counter stays balanced.
+function setScanoutInhibit(display, inhibit) {
+  if (inhibit === !!display.scanoutInhibited) {
+    return;
+  }
+  if (inhibit) {
+    global.compositor.disable_unredirect();
+  } else {
+    global.compositor.enable_unredirect();
+  }
+  display.scanoutInhibited = inhibit;
+}
+
 function changeSet(display, set, value) {
   GLib.spawn_command_line_async(
     `${ddcutil_path} setvcp ${ddcNrs[set]} ${value} --bus ${display.bus}`
@@ -144,11 +160,13 @@ const Indicator = GObject.registerClass(
               Main.uiGroup.add_child(display.overlay);
             }
             display.isOverlayActive = true;
+            setScanoutInhibit(display, true);
           } else {
             if (!display.isOverlayBlocked && display.overlay && display.overlay.get_parent()) {
               Main.uiGroup.remove_child(display.overlay);
             }
             display.isOverlayActive = false;
+            setScanoutInhibit(display, false);
           }
         };
         slider.connect('notify::value', sliderChange);
@@ -234,6 +252,7 @@ const Indicator = GObject.registerClass(
     destroy() {
       displays.forEach((d) => {
         Object.values(d.sliderTimeouts).forEach((timeout) => clearTimeout(timeout));
+        setScanoutInhibit(d, false);
         if (!d.overlay) {
           return;
         }
